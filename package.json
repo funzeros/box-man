@@ -1,0 +1,48 @@
+{
+  "name": "kbman-express",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "author": "方珂琛 <984512789@qq.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node index.ts",
+    "dev": "nodemon -e ts --exec ts-node index.ts",
+    "build": "tsc",
+    "serve": "node ./dist/index.js",
+    "pm": "pm2 start ./dist/index.js --name kbman-express",
+    "pmr": "pm2 restart kbman-express",
+    "pms": "pm2 stop kbman-express",
+    "pmd": "pm2 delete kbman-express",
+    "fix": "git config --global core.autocrlf input"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0",
+    "lodash": "^4.17.21",
+    "mysql2": "^2.2.5",
+    "reflect-metadata": "^0.1.13",
+    "sequelize": "^6.3.5",
+    "swagger-ui-express": "^4.1.6",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.9",
+    "@types/express-ws": "^3.0.0",
+    "@types/lodash": "^4.14.168",
+    "@types/node": "^14.14.20",
+    "@types/swagger-ui-express": "^4.1.2",
+    "@types/uuid": "^8.3.0",
+    "@typescript-eslint/eslint-plugin": "^4.12.0",
+    "@typescript-eslint/parser": "^4.12.0",
+    "eslint": "^7.17.0",
+    "eslint-config-prettier": "^7.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "nodemon": "^2.0.7",
+    "pm2": "^4.5.1",
+    "prettier": "^2.2.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  }
+}

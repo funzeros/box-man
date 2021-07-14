@@ -1,0 +1,16 @@
+{
+  "editor.tabSize": 2,
+  "editor.fontSize": 16,
+  "editor.insertSpaces": true,
+  "editor.mouseWheelZoom": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "files.eol": "\n",
+  "eslint.validate": [
+    "typescript",
+    "javascript"
+  ],
+  "javascript.format.enable": false,
+  "typescript.format.enable": false
+}

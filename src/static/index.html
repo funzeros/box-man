@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div>
+      <label for="creator">creator</label>
+      <input id="creator" type="text" />
+    </div>
+    <div>
+      <label for="mapName">mapName</label>
+      <input id="mapName" type="text" />
+    </div>
+    <input id="btn" type="button" value="搜索" />
+    <div class="text"></div>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <script>
+      const oText = document.querySelector(".text");
+      const oMapName = document.querySelector("#mapName");
+      const oCreator = document.querySelector("#creator");
+      const oBtn = document.querySelector("#btn");
+      function show(text) {
+        const str = `<div>${text}</div>`;
+        oText.innerHTML = str;
+      }
+      async function init() {
+        {
+          const mapData = [
+            [0, 0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 1, 0],
+            [0, 2, 3, 1, 1, 0],
+            [0, 1, 1, 1, 4, 0],
+            [0, 0, 0, 0, 0, 0],
+          ];
+          const {data} = await axios({
+            url: `${location.origin}/api/map/add`,
+            method: "post",
+            data: {
+              mapData,
+            },
+          });
+          show(JSON.stringify(data));
+          console.log(data);
+        }
+      }
+      async function search() {
+        const {data} = await axios({
+          url: `${location.origin}/api/map/list`,
+          method: "get",
+          params: {
+            mapName: oMapName.value,
+            creator: oCreator.value,
+          },
+        });
+        show(JSON.stringify(data));
+        console.log(data);
+      }
+      oBtn.addEventListener("click", search);
+      // init();
+    </script>
+  </body>
+</html>
