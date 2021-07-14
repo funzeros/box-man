@@ -1,5 +1,5 @@
 {
-  "name": "kbman-express",
+  "name": "box-man-express",
   "version": "1.0.0",
   "main": "index.ts",
   "author": "方珂琛 <984512789@qq.com>",
@@ -9,10 +9,10 @@
     "dev": "nodemon -e ts --exec ts-node index.ts",
     "build": "tsc",
     "serve": "node ./dist/index.js",
-    "pm": "pm2 start ./dist/index.js --name kbman-express",
-    "pmr": "pm2 restart kbman-express",
-    "pms": "pm2 stop kbman-express",
-    "pmd": "pm2 delete kbman-express",
+    "pm": "pm2 start ./dist/index.js --name box-man-express",
+    "pmr": "pm2 restart box-man-express",
+    "pms": "pm2 stop box-man-express",
+    "pmd": "pm2 delete box-man-express",
     "fix": "git config --global core.autocrlf input"
   },
   "dependencies": {
