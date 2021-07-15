@@ -53,7 +53,7 @@ router.get("/list", async (req, res) => {
     if (mapName) where.mapName = mapName;
     if (creator) where.creator = creator;
     const data = await map.findAll({
-      attributes: ["creator", "mapName", "mapData", "time"],
+      attributes: ["id", "creator", "mapName", "mapData", "time"],
       where,
       order: [["id", "DESC"]],
     });
