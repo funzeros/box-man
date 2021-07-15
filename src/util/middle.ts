@@ -13,6 +13,7 @@ const not_found_handler = (req: any, res: any): void => {
 };
 
 const allowCrossDomain = (req: any, res: any, next: any) => {
+  res.header("Access-Control-Allow-Headers", "*"); //自定义中间件，设置跨域需要的响应头。
   res.header("Access-Control-Allow-Origin", "*"); //自定义中间件，设置跨域需要的响应头。
   next();
 };
