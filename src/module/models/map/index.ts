@@ -63,4 +63,24 @@ router.get("/list", async (req, res) => {
     DTO.error(res)("查询地图错误");
   }
 });
+
+/**
+ * detail
+ */
+router.get("/:id", async (req, res) => {
+  try {
+    const {id} = req.params;
+    const data = await map.findOne({
+      attributes: ["id", "creator", "mapName", "mapData", "time"],
+      where: {
+        id,
+      },
+    });
+    if (data) return DTO.data(res)(data);
+    return DTO.error(res)("地图不存在哦");
+  } catch (error) {
+    console.log(error);
+    DTO.error(res)("查询地图错误");
+  }
+});
 export default router;
