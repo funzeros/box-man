@@ -41,12 +41,13 @@ export const getPageFn = (req: any, res: any) => {
   const {current = 1, size = 10} = req.query;
   const offset = (+current - 1) * +size;
   const limit = +size;
-  return async (model: any, attributes?: string[], where?: any) => {
+  return async (model: any, attributes: string[], where: any, order?: any) => {
     const data = await model.findAndCountAll({
       attributes,
       where: {...where, delFlag: false},
       offset,
       limit,
+      order,
     });
     const resData = {
       ...data,

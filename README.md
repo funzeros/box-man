@@ -14,9 +14,15 @@
 
 - **baseurl** `http://47.103.218.109:10052`
 - **列表** `/api/map/list`
-  - **query** `creator` _string_
-  - **query** `mapName` _string_
+  - **query** `creator`
+  - **query** `mapName`
 - **新增** `/api/map/add`
   - **data** `creator` _string_ _非必填_
   - **data** `mapName` _string_ _非必填_
   - **data** `mapData` _array_ _必填_
+- **详情** `/api/map/:id`
+- **分页** `/api/map/page`
+  - **query** `current`
+  - **query** `size`
+  - **query** `creator`
+  - **query** `mapName`

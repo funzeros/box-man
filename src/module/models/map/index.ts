@@ -1,6 +1,6 @@
 import {useRouter} from "../../router";
 import {DTO} from "../../types";
-import {getNow, validType} from "../../../util/util";
+import {getNow, getPageFn, validType} from "../../../util/util";
 import map from "../../../schema/models/map";
 import {v4} from "uuid";
 import {GObj} from "../../../types/common";
@@ -54,10 +54,31 @@ router.get("/list", async (req, res) => {
     if (creator) where.creator = creator;
     const data = await map.findAll({
       attributes: ["id", "creator", "mapName", "mapData", "time"],
-      where,
+      where: {
+        ...where,
+        delFlag: false,
+      },
       order: [["id", "DESC"]],
     });
     DTO.data(res)(data);
+  } catch (error) {
+    console.log(error);
+    DTO.error(res)("查询地图错误");
+  }
+});
+
+/**
+ * list
+ */
+router.get("/page", async (req, res) => {
+  try {
+    const {mapName, creator} = req.query;
+    const where: GObj = {delFlag: false};
+    if (mapName) where.mapName = mapName;
+    if (creator) where.creator = creator;
+    getPageFn(req, res)(map, ["id", "creator", "mapName", "mapData", "time"], where, [
+      ["id", "DESC"],
+    ]);
   } catch (error) {
     console.log(error);
     DTO.error(res)("查询地图错误");
@@ -74,6 +95,7 @@ router.get("/:id", async (req, res) => {
       attributes: ["id", "creator", "mapName", "mapData", "time"],
       where: {
         id,
+        delFlag: false,
       },
     });
     if (data) return DTO.data(res)(data);
