@@ -90,7 +90,7 @@ export const formatZero = (num: number, len = 2) => {
 export const getNow = () => {
   const now = new Date();
   return `${now.getFullYear()}-${formatZero(now.getMonth() + 1, 2)}-${formatZero(
-    now.getDay(),
+    now.getDate(),
     2
   )} ${formatZero(now.getHours(), 2)}:${formatZero(now.getMinutes(), 2)}:${formatZero(
     now.getSeconds(),
