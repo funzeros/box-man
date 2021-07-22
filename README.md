@@ -13,16 +13,25 @@
 ### 接口
 
 - **baseurl** `http://47.103.218.109:10052`
-- **列表** `/api/map/list`
+- **列表** `get` `/api/map/list`
   - **query** `creator`
   - **query** `mapName`
-- **新增** `/api/map/add`
+- **新增** `post` `/api/map/add`
   - **data** `creator` _string_ _非必填_
   - **data** `mapName` _string_ _非必填_
   - **data** `mapData` _array_ _必填_
-- **详情** `/api/map/:id`
-- **分页** `/api/map/page`
+- **详情** `get` `/api/map/:id`
+- **分页** `get` `/api/map/page`
   - **query** `current`
   - **query** `size`
   - **query** `creator`
   - **query** `mapName`
+- **注册** `post` `/api/user/register`
+  - **data** `name` _最大长度 32_
+  - **data** `password` _最大长度 32_
+- **登录** `post` `/api/user/login`
+  - **data** `name` _最大长度 32_
+  - **data** `password` _最大长度 32_
+- **token** `post` `/api/user/token`
+  - **Header** `Authorization` _Bearer 0b2be3b4-a8ad-40d2-9162-afe4a5b08177_
+    > Authorization 格式：Bearer 空格 {token}
