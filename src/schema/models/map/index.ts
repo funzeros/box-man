@@ -1,4 +1,4 @@
-import {JSON, STRING} from "sequelize";
+import {INTEGER, JSON, STRING} from "sequelize";
 
 import {defineModel} from "../../db";
 
@@ -18,6 +18,10 @@ const map = defineModel("map", {
   time: {
     type: STRING(20),
     allowNull: false,
+  },
+  playerHP: {
+    type: INTEGER,
+    allowNull: 0,
   },
 });
 

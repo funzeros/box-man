@@ -22,6 +22,11 @@ router.post("/add", async (req, res) => {
       default: `地图${v4()}`,
     },
     mapData: Array,
+    playerHP: {
+      allowNull: true,
+      type: Number,
+      default: 0,
+    },
   });
   if (valid.f) {
     try {
@@ -53,7 +58,7 @@ router.get("/list", async (req, res) => {
     if (mapName) where.mapName = mapName;
     if (creator) where.creator = creator;
     const data = await map.findAll({
-      attributes: ["id", "creator", "mapName", "mapData", "time"],
+      attributes: ["id", "creator", "mapName", "mapData", "time", "playerHP"],
       where: {
         ...where,
         delFlag: false,
@@ -76,7 +81,7 @@ router.get("/page", async (req, res) => {
     const where: GObj = {delFlag: false};
     if (mapName) where.mapName = mapName;
     if (creator) where.creator = creator;
-    getPageFn(req, res)(map, ["id", "creator", "mapName", "mapData", "time"], where, [
+    getPageFn(req, res)(map, ["id", "creator", "mapName", "mapData", "time", "playerHP"], where, [
       ["id", "DESC"],
     ]);
   } catch (error) {
@@ -92,7 +97,7 @@ router.get("/:id", async (req, res) => {
   try {
     const {id} = req.params;
     const data = await map.findOne({
-      attributes: ["id", "creator", "mapName", "mapData", "time"],
+      attributes: ["id", "creator", "mapName", "mapData", "time", "playerHP"],
       where: {
         id,
         delFlag: false,
