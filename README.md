@@ -35,3 +35,4 @@
 - **token** `post` `/api/user/token`
   - **Header** `Authorization` _Bearer 0b2be3b4-a8ad-40d2-9162-afe4a5b08177_
     > Authorization 格式：Bearer 空格 {token}
+- **点赞/取消点赞** `get` `/api/like/:id`

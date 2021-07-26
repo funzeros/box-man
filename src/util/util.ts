@@ -1,5 +1,5 @@
 import {intersection, isNil, keys, omitBy, pick} from "lodash";
-import {DTO} from "../module/types";
+import {Model} from "sequelize/types";
 import {GObj} from "../types/common";
 
 // 验证控制
@@ -9,7 +9,7 @@ export const isEmpty = (params: any) => {
 
 // 验证类型
 export const validType = (data: any, rule: any) =>
-  new Promise((res: any, rej: any) => {
+  new Promise<{f: boolean; resData?: any; err?: string}>((res: any, rej: any) => {
     try {
       const resData: any = {};
       const flag = Object.keys(rule).every(k => {
@@ -37,24 +37,28 @@ export const validType = (data: any, rule: any) =>
   });
 
 // 分页查询
-export const getPageFn = (req: any, res: any) => {
+export const getPageFn = (req: any) => {
   const {current = 1, size = 10} = req.query;
   const offset = (+current - 1) * +size;
   const limit = +size;
-  return async (model: any, attributes: string[], where: any, order?: any) => {
+  return async (
+    model: any,
+    attributes: string[],
+    where: any,
+    options: any = {}
+  ): Promise<{rows: Model[]; count: number}> => {
     const data = await model.findAndCountAll({
       attributes,
       where: {...where, delFlag: false},
       offset,
       limit,
-      order,
+      ...options,
     });
     const resData = {
       ...data,
       current: +current,
       size: +size,
     };
-    DTO.page(res)(resData);
     return resData;
   };
 };

@@ -24,4 +24,6 @@ export const DTO = {
     };
     return res.json(new DTOWrap(0, data, msg));
   },
+  sysError: (res: any) => (msg: string, data?: any) =>
+    res.status(500).json(new DTOWrap(1, data, msg)),
 };

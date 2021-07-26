@@ -4,13 +4,16 @@ import {getNow, getPageFn, validType} from "../../../util/util";
 import map from "../../../schema/models/map";
 import {v4} from "uuid";
 import {GObj} from "../../../types/common";
+import like from "../../../schema/models/like";
+import {getInfoByToken} from "../../../schema/models/user";
+import {Model} from "sequelize/types";
 
 const router = useRouter();
 /**
  * 新增
  */
 router.post("/add", async (req, res) => {
-  const valid: any = await validType(req.body, {
+  const valid = await validType(req.body, {
     creator: {
       allowNull: true,
       type: String,
@@ -43,32 +46,71 @@ router.post("/add", async (req, res) => {
       return DTO.data(res)(true);
     } catch (error) {
       console.log(error);
-      return DTO.error(res)("地图创建失败");
+      return DTO.sysError(res)(error);
     }
   }
   return DTO.error(res)(valid.err);
 });
+
+/**
+ * 计算点赞
+ * @param data
+ * @param userId
+ */
+const handleCalcPraise = (data: Model, userId: number) => {
+  data.setDataValue("praiseNumber", data.getDataValue("likes").length);
+  data.setDataValue(
+    "hasPraise",
+    data.getDataValue("likes").some((data: {userId: number}) => data.userId === userId)
+  );
+  data.setDataValue("likes", void 0);
+};
+/**
+ * map 调取like关联
+ */
+const mapInclude = [
+  {
+    model: like,
+    attributes: ["id", "userId"],
+  },
+];
+
 /**
  * list
  */
 router.get("/list", async (req, res) => {
   try {
+    const userInfo = await getInfoByToken(req);
+    let userId = 0;
+    if (userInfo) userId = userInfo.getDataValue("id");
     const {mapName, creator} = req.query;
-    const where: GObj = {delFlag: false};
+    const where: GObj = {};
     if (mapName) where.mapName = mapName;
     if (creator) where.creator = creator;
     const data = await map.findAll({
-      attributes: ["id", "creator", "mapName", "mapData", "time", "playerHP"],
+      attributes: [
+        "id",
+        "creator",
+        "mapName",
+        "mapData",
+        "time",
+        "playerHP",
+        // [fn("COUNT", col("likes.id")), "praiseNumber"],
+      ],
       where: {
         ...where,
         delFlag: false,
       },
       order: [["id", "DESC"]],
+      include: mapInclude,
+    });
+    data.forEach(m => {
+      handleCalcPraise(m, userId);
     });
     DTO.data(res)(data);
   } catch (error) {
     console.log(error);
-    DTO.error(res)("查询地图错误");
+    DTO.sysError(res)(error);
   }
 });
 
@@ -77,16 +119,34 @@ router.get("/list", async (req, res) => {
  */
 router.get("/page", async (req, res) => {
   try {
+    const userInfo = await getInfoByToken(req);
+    let userId = 0;
+    if (userInfo) userId = userInfo.getDataValue("id");
     const {mapName, creator} = req.query;
     const where: GObj = {delFlag: false};
     if (mapName) where.mapName = mapName;
     if (creator) where.creator = creator;
-    getPageFn(req, res)(map, ["id", "creator", "mapName", "mapData", "time", "playerHP"], where, [
-      ["id", "DESC"],
-    ]);
+    const pageData = await getPageFn(req)(
+      map,
+      ["id", "creator", "mapName", "mapData", "time", "playerHP"],
+      where,
+      {
+        order: [["id", "DESC"]],
+        include: [
+          {
+            model: like,
+            attributes: ["id", "userId"],
+          },
+        ],
+      }
+    );
+    pageData.rows.forEach(m => {
+      handleCalcPraise(m, userId);
+    });
+    DTO.page(res)(pageData);
   } catch (error) {
     console.log(error);
-    DTO.error(res)("查询地图错误");
+    DTO.sysError(res)(error);
   }
 });
 
@@ -95,6 +155,9 @@ router.get("/page", async (req, res) => {
  */
 router.get("/:id", async (req, res) => {
   try {
+    const userInfo = await getInfoByToken(req);
+    let userId = 0;
+    if (userInfo) userId = userInfo.getDataValue("id");
     const {id} = req.params;
     const data = await map.findOne({
       attributes: ["id", "creator", "mapName", "mapData", "time", "playerHP"],
@@ -102,12 +165,14 @@ router.get("/:id", async (req, res) => {
         id,
         delFlag: false,
       },
+      include: mapInclude,
     });
+    handleCalcPraise(data, userId);
     if (data) return DTO.data(res)(data);
     return DTO.error(res)("地图不存在哦");
   } catch (error) {
     console.log(error);
-    DTO.error(res)("查询地图错误");
+    DTO.sysError(res)(error);
   }
 });
 export default router;
