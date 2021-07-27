@@ -5,7 +5,7 @@ import map from "../../../schema/models/map";
 import {v4} from "uuid";
 import {GObj} from "../../../types/common";
 import like from "../../../schema/models/like";
-import {getInfoByToken} from "../../../schema/models/user";
+import user, {getInfoByToken} from "../../../schema/models/user";
 import {Model} from "sequelize/types";
 
 const router = useRouter();
@@ -58,20 +58,25 @@ router.post("/add", async (req, res) => {
  * @param userId
  */
 const handleCalcPraise = (data: Model, userId: number) => {
-  data.setDataValue("praiseNumber", data.getDataValue("likes").length);
+  data.setDataValue("praiseNumber", data.getDataValue("users").length);
   data.setDataValue(
     "hasPraise",
-    data.getDataValue("likes").some((data: {userId: number}) => data.userId === userId)
+    data.getDataValue("users").some((data: {id: number}) => data.id === userId)
   );
   data.setDataValue("likes", void 0);
+  data.setDataValue(
+    "praiseUsers",
+    data.getDataValue("users").map(({id, name}: GObj) => ({id, name}))
+  );
+  data.setDataValue("users", void 0);
 };
 /**
  * map 调取like关联
  */
 const mapInclude = [
   {
-    model: like,
-    attributes: ["id", "userId"],
+    model: user,
+    attributes: ["id", "name"],
   },
 ];
 

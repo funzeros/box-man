@@ -22,8 +22,8 @@ const like = defineModel("like", {
 });
 user.belongsToMany(map, {through: like});
 map.belongsToMany(user, {through: like});
-like.belongsTo(map);
+user.hasMany(like);
 like.belongsTo(user);
 map.hasMany(like);
-user.hasMany(like);
+like.belongsTo(map);
 export default like;
