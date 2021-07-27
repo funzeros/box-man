@@ -19,11 +19,7 @@ router.get("/:id", async (req, res) => {
         defaults: {userId, mapId},
       });
       if (!created) {
-        like.destroy({
-          where: {
-            id: likeIns.getDataValue("id"),
-          },
-        });
+        likeIns.destroy();
       }
       return DTO.data(res)(true, created ? "点赞成功" : "取消点赞成功");
     }
