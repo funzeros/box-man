@@ -16,6 +16,10 @@
 - **列表** `get` `/api/map/list`
   - **query** `creator`
   - **query** `mapName`
+  - **query** `sort`
+    - 1 点赞降序
+    - 2 点赞升序
+    - 其他值或空 id 降序
 - **新增** `post` `/api/map/add`
   - **data** `creator` _string_ _非必填_
   - **data** `mapName` _string_ _非必填_
@@ -26,6 +30,10 @@
   - **query** `size`
   - **query** `creator`
   - **query** `mapName`
+  - **query** `sort`
+    - 1 点赞降序
+    - 2 点赞升序
+    - 其他值或空 id 降序
 - **注册** `post` `/api/user/register`
   - **data** `name` _最大长度 32_
   - **data** `password` _最大长度 32_

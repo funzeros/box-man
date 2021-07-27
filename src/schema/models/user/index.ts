@@ -1,3 +1,4 @@
+import {Request} from "express";
 import {STRING} from "sequelize";
 import {v4 as uuidv4} from "uuid";
 
@@ -56,7 +57,7 @@ export const updateToken = async (id: string) => {
 /**
  * 验证token 根据token 取信息
  */
-export const getInfoByToken = async (req: any) => {
+export const getInfoByToken = async (req: Request) => {
   const authorization = req.headers.authorization;
   if (authorization) {
     const token = authorization.split(" ")[1];

@@ -1,12 +1,12 @@
 import {useRouter} from "../../router";
 import {DTO} from "../../types";
 import {getNow, getPageFn, validType} from "../../../util/util";
-import map from "../../../schema/models/map";
+import mapModel from "../../../schema/models/map";
 import {v4} from "uuid";
 import {GObj} from "../../../types/common";
-import like from "../../../schema/models/like";
-import user, {getInfoByToken} from "../../../schema/models/user";
-import {Model} from "sequelize/types";
+import userModel, {getInfoByToken} from "../../../schema/models/user";
+import {Model, Order} from "sequelize/types";
+import {Request} from "express";
 
 const router = useRouter();
 /**
@@ -35,14 +35,14 @@ router.post("/add", async (req, res) => {
     try {
       if (valid.resData.creator.length > 32) return DTO.error(res)("作者名称过长");
       if (valid.resData.mapName.length > 255) return DTO.error(res)("地图名称过长");
-      const amount = await map.count({
+      const amount = await mapModel.count({
         where: {
           mapName: valid.resData.mapName,
           delFlag: false,
         },
       });
       if (amount) return DTO.error(res)("该地图名已存在");
-      await map.create({...valid.resData, time: getNow()});
+      await mapModel.create({...valid.resData, time: getNow()});
       return DTO.data(res)(true);
     } catch (error) {
       console.log(error);
@@ -58,7 +58,6 @@ router.post("/add", async (req, res) => {
  * @param userId
  */
 const handleCalcPraise = (data: Model, userId: number) => {
-  data.setDataValue("praiseNumber", data.getDataValue("users").length);
   data.setDataValue(
     "hasPraise",
     data.getDataValue("users").some((data: {id: number}) => data.id === userId)
@@ -75,11 +74,33 @@ const handleCalcPraise = (data: Model, userId: number) => {
  */
 const mapInclude = [
   {
-    model: user,
+    model: userModel,
     attributes: ["id", "name"],
   },
 ];
+/**
+ * map查询属性
+ */
+const mapAttrs = ["id", "creator", "mapName", "mapData", "time", "playerHP", "praiseNumber"];
+/**
+ * map查询和排序条件
+ */
 
+const getSearchParams = (req: Request) => {
+  const {mapName, creator, sort} = req.query;
+  const where: GObj = {};
+  const order: Order = [["id", "DESC"]];
+  if (mapName) where.mapName = mapName;
+  if (creator) where.creator = creator;
+  if (sort) {
+    if (sort === "1") order.unshift(["praiseNumber", "DESC"]);
+    if (sort === "2") order.unshift(["praiseNumber", "ASC"]);
+  }
+  return {
+    where,
+    order,
+  };
+};
 /**
  * list
  */
@@ -88,25 +109,14 @@ router.get("/list", async (req, res) => {
     const userInfo = await getInfoByToken(req);
     let userId = 0;
     if (userInfo) userId = userInfo.getDataValue("id");
-    const {mapName, creator} = req.query;
-    const where: GObj = {};
-    if (mapName) where.mapName = mapName;
-    if (creator) where.creator = creator;
-    const data = await map.findAll({
-      attributes: [
-        "id",
-        "creator",
-        "mapName",
-        "mapData",
-        "time",
-        "playerHP",
-        // [fn("COUNT", col("likes.id")), "praiseNumber"],
-      ],
+    const {where, order} = getSearchParams(req);
+    const data = await mapModel.findAll({
+      attributes: mapAttrs,
       where: {
         ...where,
         delFlag: false,
       },
-      order: [["id", "DESC"]],
+      order,
       include: mapInclude,
     });
     data.forEach(m => {
@@ -127,24 +137,11 @@ router.get("/page", async (req, res) => {
     const userInfo = await getInfoByToken(req);
     let userId = 0;
     if (userInfo) userId = userInfo.getDataValue("id");
-    const {mapName, creator} = req.query;
-    const where: GObj = {delFlag: false};
-    if (mapName) where.mapName = mapName;
-    if (creator) where.creator = creator;
-    const pageData = await getPageFn(req)(
-      map,
-      ["id", "creator", "mapName", "mapData", "time", "playerHP"],
-      where,
-      {
-        order: [["id", "DESC"]],
-        include: [
-          {
-            model: like,
-            attributes: ["id", "userId"],
-          },
-        ],
-      }
-    );
+    const {where, order} = getSearchParams(req);
+    const pageData = await getPageFn(req)(mapModel, mapAttrs, where, {
+      order,
+      include: mapInclude,
+    });
     pageData.rows.forEach(m => {
       handleCalcPraise(m, userId);
     });
@@ -164,8 +161,8 @@ router.get("/:id", async (req, res) => {
     let userId = 0;
     if (userInfo) userId = userInfo.getDataValue("id");
     const {id} = req.params;
-    const data = await map.findOne({
-      attributes: ["id", "creator", "mapName", "mapData", "time", "playerHP"],
+    const data = await mapModel.findOne({
+      attributes: mapAttrs,
       where: {
         id,
         delFlag: false,

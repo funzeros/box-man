@@ -1,3 +1,5 @@
+import {Response} from "express";
+
 export class DTOWrap {
   constructor(code: number, data?: any, msg?: string) {
     this.code = code;
@@ -10,11 +12,11 @@ export class DTOWrap {
 }
 
 export const DTO = {
-  error: (res: any) => (msg: string, data?: any) => res.json(new DTOWrap(1, data, msg)),
-  data: (res: any) => (data: any, msg?: string) => res.json(new DTOWrap(0, data, msg)),
-  noAuth: (res: any) => (msg?: string, data?: any) =>
+  error: (res: Response) => (msg: string, data?: any) => res.json(new DTOWrap(1, data, msg)),
+  data: (res: Response) => (data: any, msg?: string) => res.json(new DTOWrap(0, data, msg)),
+  noAuth: (res: Response) => (msg?: string, data?: any) =>
     res.status(401).json(new DTOWrap(1, data, msg || "身份认证失效请重新登录")),
-  page: (res: any) => (arg: any, msg?: string) => {
+  page: (res: Response) => (arg: any, msg?: string) => {
     const {count, rows, current, size} = arg;
     const data = {
       total: count,
@@ -24,6 +26,6 @@ export const DTO = {
     };
     return res.json(new DTOWrap(0, data, msg));
   },
-  sysError: (res: any) => (msg: string, data?: any) =>
+  sysError: (res: Response) => (msg: string, data?: any) =>
     res.status(500).json(new DTOWrap(1, data, msg)),
 };

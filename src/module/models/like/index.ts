@@ -1,4 +1,5 @@
-import like from "../../../schema/models/like";
+import likeModel from "../../../schema/models/like";
+import mapModel from "../../../schema/models/map";
 import {getInfoByToken} from "../../../schema/models/user";
 import {useRouter} from "../../router";
 import {DTO} from "../../types";
@@ -11,7 +12,7 @@ router.get("/:id", async (req, res) => {
     if (userInfo) {
       const userId = userInfo.getDataValue("id");
       const mapId = req.params.id;
-      const [likeIns, created] = await like.findOrCreate({
+      const [likeIns, created] = await likeModel.findOrCreate({
         where: {
           userId,
           mapId,
@@ -19,8 +20,22 @@ router.get("/:id", async (req, res) => {
         defaults: {userId, mapId},
       });
       if (!created) {
-        likeIns.destroy();
+        await likeIns.destroy();
       }
+      const praiseNumber = await likeModel.count({
+        where: {
+          mapId,
+          delFlag: false,
+        },
+      });
+      await mapModel.update(
+        {praiseNumber},
+        {
+          where: {
+            id: mapId,
+          },
+        }
+      );
       return DTO.data(res)(true, created ? "点赞成功" : "取消点赞成功");
     }
     DTO.noAuth(res)();

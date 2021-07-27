@@ -21,7 +21,13 @@ const map = defineModel("map", {
   },
   playerHP: {
     type: INTEGER,
-    allowNull: 0,
+    defaultValue: 0,
+    allowNull: true,
+  },
+  praiseNumber: {
+    type: INTEGER,
+    defaultValue: 0,
+    allowNull: true,
   },
 });
 
