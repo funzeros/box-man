@@ -20,10 +20,11 @@ const collet = defineModel("collet", {
     },
   },
 });
-user.belongsToMany(map, {through: collet});
-map.belongsToMany(user, {through: collet});
+// user.belongsToMany(map, {through: collet});
+// map.belongsToMany(user, {through: collet});
 user.hasMany(collet);
 collet.belongsTo(user);
 map.hasMany(collet);
 collet.belongsTo(map);
+
 export default collet;

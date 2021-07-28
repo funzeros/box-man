@@ -43,4 +43,5 @@ router.get("/:id", async (req, res) => {
     DTO.sysError(res)(error);
   }
 });
+
 export default router;

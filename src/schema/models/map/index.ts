@@ -29,6 +29,19 @@ const map = defineModel("map", {
     defaultValue: 0,
     allowNull: true,
   },
+  stepsPas: {
+    type: INTEGER,
+    defaultValue: 0,
+    allowNull: true,
+  },
+  processData: {
+    type: JSON,
+    allowNull: true,
+  },
+  mapKingId: {
+    type: INTEGER,
+    allowNull: true,
+  },
 });
 
 export default map;

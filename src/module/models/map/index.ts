@@ -7,6 +7,7 @@ import {GObj} from "../../../types/common";
 import userModel, {getInfoByToken} from "../../../schema/models/user";
 import {Model, Order} from "sequelize/types";
 import {Request} from "express";
+import colletModel from "../../../schema/models/collect";
 
 const router = useRouter();
 /**
@@ -72,16 +73,24 @@ const handleCalcPraise = (data: Model, userId: number) => {
 /**
  * map 调取like关联
  */
-const mapInclude = [
-  {
-    model: userModel,
-    attributes: ["id", "name"],
-  },
-];
+const mapInclude = {
+  model: userModel,
+  attributes: ["id", "name"],
+};
+
 /**
  * map查询属性
  */
-const mapAttrs = ["id", "creator", "mapName", "mapData", "time", "playerHP", "praiseNumber"];
+const mapAttrs = [
+  "id",
+  "creator",
+  "mapName",
+  "mapData",
+  "time",
+  "playerHP",
+  "praiseNumber",
+  "stepsPas",
+];
 /**
  * map查询和排序条件
  */
@@ -130,7 +139,7 @@ router.get("/list", async (req, res) => {
 });
 
 /**
- * list
+ * page
  */
 router.get("/page", async (req, res) => {
   try {
@@ -153,6 +162,74 @@ router.get("/page", async (req, res) => {
 });
 
 /**
+ * collect
+ */
+router.get("/collect", async (req, res) => {
+  try {
+    const userInfo = await getInfoByToken(req);
+    if (!userInfo) return DTO.noAuth(res)();
+    const userId = userInfo.getDataValue("id");
+    const {where, order} = getSearchParams(req);
+    const pageData = await getPageFn(req)(mapModel, mapAttrs, where, {
+      order,
+      include: {
+        model: colletModel,
+        where: {
+          userId,
+        },
+        attributes: [],
+      },
+    });
+    DTO.page(res)(pageData);
+  } catch (error) {
+    console.log(error);
+    DTO.sysError(res)(error);
+  }
+});
+/**
+ * steps_pas
+ */
+router.post("/steps_pas", async (req, res) => {
+  try {
+    const userInfo = await getInfoByToken(req);
+    if (!userInfo) return DTO.noAuth(res)();
+    const userId = userInfo.getDataValue("id");
+    const valid = await validType(req.body, {
+      mapId: Number,
+      stepsPas: Number,
+      processData: Array,
+    });
+    if (valid.f) {
+      const mapIns = await mapModel.findOne({
+        attributes: ["stepsPas"],
+        where: {
+          id: valid.resData.mapId,
+        },
+      });
+      const stepsPas = mapIns.getDataValue("stepsPas");
+      if (!stepsPas || valid.resData.stepsPas < stepsPas) {
+        await mapModel.update(
+          {
+            stepsPas: valid.resData.stepsPas,
+            processData: valid.resData.processData,
+            mapKingId: userId,
+          },
+          {
+            where: {id: valid.resData.mapId},
+          }
+        );
+        return DTO.data(res)(true, "恭喜您创造了新的最佳步数");
+      }
+      return DTO.data(res)(false, "很遗憾，没有打败最佳步数");
+    }
+    return DTO.error(res)(valid.err);
+  } catch (error) {
+    console.log(error);
+    DTO.sysError(res)(error);
+  }
+});
+
+/**
  * detail
  */
 router.get("/:id", async (req, res) => {
@@ -162,19 +239,32 @@ router.get("/:id", async (req, res) => {
     if (userInfo) userId = userInfo.getDataValue("id");
     const {id} = req.params;
     const data = await mapModel.findOne({
-      attributes: mapAttrs,
+      attributes: [...mapAttrs, "processData", "mapKingId"],
       where: {
         id,
         delFlag: false,
       },
       include: mapInclude,
     });
-    handleCalcPraise(data, userId);
-    if (data) return DTO.data(res)(data);
+    if (data) {
+      const mapKingId = data.getDataValue("mapKingId");
+      if (mapKingId) {
+        const mapKing = await userModel.findOne({
+          attributes: ["name"],
+          where: {
+            id: mapKingId,
+          },
+        });
+        data.setDataValue("mapKingName", mapKing.getDataValue("name"));
+      }
+      handleCalcPraise(data, userId);
+      return DTO.data(res)(data);
+    }
     return DTO.error(res)("地图不存在哦");
   } catch (error) {
     console.log(error);
     DTO.sysError(res)(error);
   }
 });
+
 export default router;
