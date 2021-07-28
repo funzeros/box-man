@@ -58,25 +58,35 @@ router.post("/add", async (req, res) => {
  * @param data
  * @param userId
  */
-const handleCalcPraise = (data: Model, userId: number) => {
+const handleCalc = (data: Model, userId: number) => {
   data.setDataValue(
     "hasPraise",
     data.getDataValue("users").some((data: {id: number}) => data.id === userId)
   );
-  data.setDataValue("likes", void 0);
+  data.setDataValue(
+    "hasCollect",
+    data.getDataValue("collets").some((data: {userId: number}) => data.userId === userId)
+  );
   data.setDataValue(
     "praiseUsers",
     data.getDataValue("users").map(({id, name}: GObj) => ({id, name}))
   );
+  data.setDataValue("collets", void 0);
   data.setDataValue("users", void 0);
 };
 /**
  * map 调取like关联
  */
-const mapInclude = {
-  model: userModel,
-  attributes: ["id", "name"],
-};
+const mapInclude = [
+  {
+    model: userModel,
+    attributes: ["id", "name"],
+  },
+  {
+    model: colletModel,
+    attributes: ["userId"],
+  },
+];
 
 /**
  * map查询属性
@@ -129,7 +139,7 @@ router.get("/list", async (req, res) => {
       include: mapInclude,
     });
     data.forEach(m => {
-      handleCalcPraise(m, userId);
+      handleCalc(m, userId);
     });
     DTO.data(res)(data);
   } catch (error) {
@@ -152,7 +162,7 @@ router.get("/page", async (req, res) => {
       include: mapInclude,
     });
     pageData.rows.forEach(m => {
-      handleCalcPraise(m, userId);
+      handleCalc(m, userId);
     });
     DTO.page(res)(pageData);
   } catch (error) {
@@ -257,7 +267,7 @@ router.get("/:id", async (req, res) => {
         });
         data.setDataValue("mapKingName", mapKing.getDataValue("name"));
       }
-      handleCalcPraise(data, userId);
+      handleCalc(data, userId);
       return DTO.data(res)(data);
     }
     return DTO.error(res)("地图不存在哦");
