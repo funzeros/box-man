@@ -36,7 +36,7 @@ router.get("/:id", async (req, res) => {
           },
         }
       );
-      return DTO.data(res)(true, created ? "点赞成功" : "取消点赞成功");
+      return DTO.data(res)(created, created ? "点赞成功" : "取消点赞成功");
     }
     DTO.noAuth(res)();
   } catch (error) {
