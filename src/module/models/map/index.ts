@@ -7,7 +7,7 @@ import {GObj} from "../../../types/common";
 import userModel, {getInfoByToken} from "../../../schema/models/user";
 import {Model, Order} from "sequelize/types";
 import {Request} from "express";
-import colletModel from "../../../schema/models/collect";
+import collectModel from "../../../schema/models/collect";
 
 const router = useRouter();
 /**
@@ -65,13 +65,13 @@ const handleCalc = (data: Model, userId: number) => {
   );
   data.setDataValue(
     "hasCollect",
-    data.getDataValue("collets").some((data: {userId: number}) => data.userId === userId)
+    data.getDataValue("collects").some((data: {userId: number}) => data.userId === userId)
   );
   data.setDataValue(
     "praiseUsers",
     data.getDataValue("users").map(({id, name}: GObj) => ({id, name}))
   );
-  data.setDataValue("collets", void 0);
+  data.setDataValue("collects", void 0);
   data.setDataValue("users", void 0);
 };
 /**
@@ -83,7 +83,7 @@ const mapInclude = [
     attributes: ["id", "name"],
   },
   {
-    model: colletModel,
+    model: collectModel,
     attributes: ["userId"],
   },
 ];
@@ -183,7 +183,7 @@ router.get("/collect", async (req, res) => {
     const pageData = await getPageFn(req)(mapModel, mapAttrs, where, {
       order,
       include: {
-        model: colletModel,
+        model: collectModel,
         where: {
           userId,
         },

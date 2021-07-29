@@ -44,8 +44,8 @@
   - **Header** `Authorization` _Bearer 0b2be3b4-a8ad-40d2-9162-afe4a5b08177_
     > Authorization 格式：Bearer 空格 {token}
 - **点赞/取消点赞** `get` `/api/like/:id` _需权限_
-- **收藏/取消收藏** `get` `/api/collet/:id` _需权限_
-- **收藏地图分页** `get` `/api/map/collet` _需权限_ _参数同分页_ `/api/map/page`
+- **收藏/取消收藏** `get` `/api/collect/:id` _需权限_
+- **收藏地图分页** `get` `/api/map/collect` _需权限_ _参数同分页_ `/api/map/page`
 - **最佳步数** `post` `/api/map/steps_pas` _需权限_
   - **data** `mapId` _地图 id_ _number_ _必填_
   - **data** `stepsPas` _步数_ _number_ _必填_

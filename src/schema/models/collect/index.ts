@@ -4,7 +4,7 @@ import {defineModel} from "../../db";
 import map from "../map";
 import user from "../user";
 
-const collet = defineModel("collet", {
+const collect = defineModel("collect", {
   userId: {
     type: BIGINT,
     references: {
@@ -20,11 +20,11 @@ const collet = defineModel("collet", {
     },
   },
 });
-// user.belongsToMany(map, {through: collet});
-// map.belongsToMany(user, {through: collet});
-user.hasMany(collet);
-collet.belongsTo(user);
-map.hasMany(collet);
-collet.belongsTo(map);
+// user.belongsToMany(map, {through: collect});
+// map.belongsToMany(user, {through: collect});
+user.hasMany(collect);
+collect.belongsTo(user);
+map.hasMany(collect);
+collect.belongsTo(map);
 
-export default collet;
+export default collect;
