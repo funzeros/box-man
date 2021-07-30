@@ -77,17 +77,18 @@ const handleCalc = (data: Model, userId: number) => {
 /**
  * map 调取like关联
  */
-const mapInclude = [
-  {
-    model: userModel,
-    attributes: ["id", "name"],
-  },
-  {
-    model: collectModel,
-    attributes: ["userId"],
-  },
-];
-
+const getMapInclude = () => {
+  return [
+    {
+      model: userModel,
+      attributes: ["id", "name"],
+    },
+    {
+      model: collectModel,
+      attributes: ["userId"],
+    },
+  ];
+};
 /**
  * map查询属性
  */
@@ -105,19 +106,24 @@ const mapAttrs = [
  * map查询和排序条件
  */
 
-const getSearchParams = (req: Request) => {
-  const {mapName, creator, sort} = req.query;
+const getSearchParams = (req: Request, userId: number) => {
+  const {mapName, creator, sort, type} = req.query;
   const where: GObj = {};
   const order: Order = [["id", "DESC"]];
+  const mapInclude: GObj = getMapInclude();
   if (mapName) where.mapName = mapName;
   if (creator) where.creator = creator;
   if (sort) {
     if (sort === "1") order.unshift(["praiseNumber", "DESC"]);
     if (sort === "2") order.unshift(["praiseNumber", "ASC"]);
   }
+  if (type) {
+    if (type === "collect") mapInclude[1].where = {userId};
+  }
   return {
     where,
     order,
+    mapInclude,
   };
 };
 /**
@@ -128,7 +134,7 @@ router.get("/list", async (req, res) => {
     const userInfo = await getInfoByToken(req);
     let userId = 0;
     if (userInfo) userId = userInfo.getDataValue("id");
-    const {where, order} = getSearchParams(req);
+    const {where, order, mapInclude} = getSearchParams(req, userId);
     const data = await mapModel.findAll({
       attributes: mapAttrs,
       where: {
@@ -156,7 +162,7 @@ router.get("/page", async (req, res) => {
     const userInfo = await getInfoByToken(req);
     let userId = 0;
     if (userInfo) userId = userInfo.getDataValue("id");
-    const {where, order} = getSearchParams(req);
+    const {where, order, mapInclude} = getSearchParams(req, userId);
     const pageData = await getPageFn(req)(mapModel, mapAttrs, where, {
       order,
       include: mapInclude,
@@ -171,31 +177,6 @@ router.get("/page", async (req, res) => {
   }
 });
 
-/**
- * collect
- */
-router.get("/collect", async (req, res) => {
-  try {
-    const userInfo = await getInfoByToken(req);
-    if (!userInfo) return DTO.noAuth(res)();
-    const userId = userInfo.getDataValue("id");
-    const {where, order} = getSearchParams(req);
-    const pageData = await getPageFn(req)(mapModel, mapAttrs, where, {
-      order,
-      include: {
-        model: collectModel,
-        where: {
-          userId,
-        },
-        attributes: [],
-      },
-    });
-    DTO.page(res)(pageData);
-  } catch (error) {
-    console.log(error);
-    DTO.sysError(res)(error);
-  }
-});
 /**
  * steps_pas
  */
@@ -254,7 +235,7 @@ router.get("/:id", async (req, res) => {
         id,
         delFlag: false,
       },
-      include: mapInclude,
+      include: getMapInclude(),
     });
     if (data) {
       const mapKingId = data.getDataValue("mapKingId");
