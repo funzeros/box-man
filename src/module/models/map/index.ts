@@ -31,15 +31,8 @@ router.post("/add", async (req, res) => {
       type: Number,
       default: 0,
     },
-    stepsPas: {
-      allowNull: true,
-      type: Number,
-      default: 0,
-    },
-    processData: {
-      type: Array,
-      allowNull: true,
-    },
+    stepsPas: Number,
+    processData: Array,
   });
   if (valid.f) {
     try {
