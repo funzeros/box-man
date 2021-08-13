@@ -47,15 +47,17 @@ export const getPageFn = (req: any) => {
     where: any,
     options: any = {}
   ): Promise<{rows: Model[]; count: number}> => {
-    const data = await model.findAndCountAll({
+    const rows = await model.findAll({
       attributes,
       where: {...where, delFlag: false},
       offset,
       limit,
       ...options,
     });
+    const count = await model.count({where: {...where, delFlag: false}});
     const resData = {
-      ...data,
+      rows,
+      count,
       current: +current,
       size: +size,
     };
