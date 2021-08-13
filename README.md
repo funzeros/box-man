@@ -26,6 +26,9 @@
   - **data** `creator` _string_ _非必填_
   - **data** `mapName` _string_ _非必填_
   - **data** `mapData` _array_ _必填_
+  - **data** `playerHP` _number_ _非必填_
+  - **data** `stepsPas` _number_ _必填_
+  - **data** `processData` _array_ _必填_
 - **详情** `get` `/api/map/:id`
 - **分页** `get` `/api/map/page`
   - **query** `current`
