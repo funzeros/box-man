@@ -57,3 +57,9 @@
   - **data** `mapId` _地图 id_ _number_ _必填_
   - **data** `stepsPas` _步数_ _number_ _必填_
   - **data** `processData` _过程_ _array_ _必填_
+- **删除地图** `post` `/api/map/delete/:id` _需权限_
+- **增减金币** `post` `/api/user/coin` _需权限_
+  - **data** `coin` _增减的金币值_ _number_ _必填_
+- **发布版本** `post` `/api/version/add` _需权限_
+  - **data** `versionId` _版本号_ _string_ _必填_
+- **获取最新版本** `get` `/api/version/latest`

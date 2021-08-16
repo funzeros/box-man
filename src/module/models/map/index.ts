@@ -221,7 +221,32 @@ router.post("/steps_pas", async (req, res) => {
     DTO.sysError(res)(error);
   }
 });
-
+/**
+ * delete
+ */
+router.post("/delete/:id", async (req, res) => {
+  try {
+    const userInfo = await getInfoByToken(req);
+    if (userInfo) {
+      if (userInfo.getDataValue("auth") === 1) {
+        await mapModel.update(
+          {delFlag: true},
+          {
+            where: {
+              id: req.params.id,
+            },
+          }
+        );
+        return DTO.data(res)(true);
+      }
+      return DTO.error(res)("您没有权限");
+    }
+    return DTO.error(res)("您没有权限");
+  } catch (error) {
+    console.log(error);
+    DTO.sysError(res)(error);
+  }
+});
 /**
  * detail
  */

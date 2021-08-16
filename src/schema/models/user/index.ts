@@ -1,5 +1,5 @@
 import {Request} from "express";
-import {STRING} from "sequelize";
+import {INTEGER, STRING, TINYINT} from "sequelize";
 import {v4 as uuidv4} from "uuid";
 
 import {defineModel} from "../../db";
@@ -10,6 +10,14 @@ const user = defineModel("user", {
     allowNull: true,
     type: STRING(36),
   },
+  coin: {
+    type: INTEGER,
+    defaultValue: 0,
+  },
+  auth: {
+    type: TINYINT,
+    defaultValue: 0,
+  },
 });
 
 /**
@@ -19,7 +27,7 @@ const user = defineModel("user", {
  */
 export const getUserInfo = async (where: any) => {
   const data = await user.findOne({
-    attributes: ["id", "name", "token"],
+    attributes: ["id", "name", "token", "auth", "coin"],
     where: {...where, delFlag: false},
   });
   return data;

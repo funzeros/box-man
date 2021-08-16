@@ -87,4 +87,35 @@ router.post("/update", async (req, res) => {
     return DTO.sysError(res)(error);
   }
 });
+
+/**
+ * 减少或者增加金币
+ */
+router.post("/coin", async (req, res) => {
+  try {
+    const userInfo = await getInfoByToken(req);
+    console.log(req.body);
+    if (userInfo) {
+      const valid = await validType(req.body, {
+        coin: Number,
+      });
+      if (valid.f) {
+        let newCoin = valid.resData.coin;
+        const oldCoin = userInfo.getDataValue("coin");
+        newCoin += oldCoin;
+        if (newCoin >= 0) {
+          userInfo.setDataValue("coin", newCoin);
+          await userInfo.save();
+          return DTO.data(res)(true);
+        }
+        return DTO.error(res)("金币不够啦");
+      }
+      return DTO.error(res)(valid.err);
+    }
+    return DTO.noAuth(res)();
+  } catch (error) {
+    console.log(error);
+    return DTO.sysError(res)(error);
+  }
+});
 export default router;
