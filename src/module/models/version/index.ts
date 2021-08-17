@@ -2,6 +2,7 @@ import {useRouter} from "../../router";
 import {DTO} from "../../types";
 import versionModel from "../../../schema/models/version";
 import {getInfoByToken} from "../../../schema/models/user";
+import {getNow} from "../../../util/util";
 
 const router = useRouter();
 router.post("/add", async (req, res) => {
@@ -10,7 +11,7 @@ router.post("/add", async (req, res) => {
     const userInfo = await getInfoByToken(req);
     if (userInfo) {
       if (userInfo.getDataValue("auth") === 1) {
-        await versionModel.create({versionId: req.body.versionId});
+        await versionModel.create({versionId: req.body.versionId, publishTime: getNow()});
         return DTO.data(res)(true);
       }
       return DTO.error(res)("您没有权限");
