@@ -1,7 +1,7 @@
 import {useRouter} from "../../router";
 import {DTO} from "../../types";
 import {validType} from "../../../util/util";
-import user, {getUserInfo, updateToken, getInfoByToken, getUserPassword} from "../../../schema/models/user";
+import user, {getUserInfo, updateToken, getInfoByToken, getAllUserInfo} from "../../../schema/models/user";
 const router = useRouter();
 /**
  * 注册
@@ -70,26 +70,16 @@ router.post("/token", async (req, res) => {
  */
 router.post("/changePsw", async (req, res) => {
   try {
-    const data = await getInfoByToken(req);
-    let password;
+    const data = await getAllUserInfo(req);
     if (data) {
-      const authorization = req.headers.authorization;
-      if (authorization) {
-        const token = authorization.split(" ")[1];
-        if (token) password = await getUserPassword({token});
-        password = password.getDataValue("password");
-      }
-      if (req.body.oldPassword == password) {
-        await user.update(req.body, {
-          where: {
-            id: data.getDataValue("id"),
-            delFlag: false,
-          },
-        });
-      }
-      else {
-        return DTO.error(res)("原密码错误");
-      }
+      const password = data.getDataValue("password");
+      if (req.body.oldPassword !== password) return DTO.error(res)("原密码错误");
+      await user.update(req.body, {
+        where: {
+          id: data.getDataValue("id"),
+          delFlag: false,
+        },
+      });
       return DTO.data(res)(true);
     }
     return DTO.noAuth(res)();
