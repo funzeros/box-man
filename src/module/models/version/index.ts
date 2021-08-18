@@ -11,7 +11,7 @@ router.post("/add", async (req, res) => {
     const userInfo = await getInfoByToken(req);
     if (userInfo) {
       if (userInfo.getDataValue("auth") === 1) {
-        await versionModel.create({versionId: req.body.versionId, publishTime: getNow()});
+        await versionModel.create({versionId: req.body.versionId, isForce: req.body.isForce, publishTime: getNow()});
         return DTO.data(res)(true);
       }
       return DTO.error(res)("您没有权限");
@@ -25,7 +25,7 @@ router.post("/add", async (req, res) => {
 router.get("/latest", async (req, res) => {
   try {
     const data = await versionModel.findOne({
-      attributes: ["versionId", "publishTime"],
+      attributes: ["versionId", "isForce", "publishTime"],
       order: [["id", "DESC"]],
     });
     if (data) return DTO.data(res)(data);
