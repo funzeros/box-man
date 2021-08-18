@@ -33,6 +33,18 @@ export const getUserInfo = async (where: any) => {
   return data;
 };
 /**
+ * 根据条件查询用户信息
+ * @param name
+ * @param password
+ */
+ export const getUserPassword = async (where: any) => {
+  const data = await user.findOne({
+    attributes: ["password"],
+    where: {...where, delFlag: false},
+  });
+  return data;
+};
+/**
  * 根据名字查数量
  * @param name
  */

@@ -1,7 +1,7 @@
 import {useRouter} from "../../router";
 import {DTO} from "../../types";
 import {validType} from "../../../util/util";
-import user, {getUserInfo, updateToken, getInfoByToken} from "../../../schema/models/user";
+import user, {getUserInfo, updateToken, getInfoByToken, getUserPassword} from "../../../schema/models/user";
 const router = useRouter();
 /**
  * 注册
@@ -64,6 +64,39 @@ router.post("/token", async (req, res) => {
   if (data) return DTO.data(res)(data);
   return DTO.noAuth(res)();
 });
+
+/**
+ * 修改密码
+ */
+router.post("/changePsw", async (req, res) => {
+  try {
+    const data = await getInfoByToken(req);
+    let password;
+    if (data) {
+      const authorization = req.headers.authorization;
+      if (authorization) {
+        const token = authorization.split(" ")[1];
+        if (token) password = await getUserPassword({token});
+        password = password.getDataValue("password");
+      }
+      if (req.body.oldPassword == password) {
+        await user.update(req.body, {
+          where: {
+            id: data.getDataValue("id"),
+            delFlag: false,
+          },
+        });
+      }
+      else {
+        return DTO.error(res)("原密码错误");
+      }
+      return DTO.data(res)(true);
+    }
+    return DTO.noAuth(res)();
+  } catch (error) {
+    return DTO.sysError(res)(error);
+  }
+})
 
 /**
  * 修改用户信息
