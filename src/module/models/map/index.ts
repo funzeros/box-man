@@ -53,7 +53,7 @@ router.post("/add", async (req, res) => {
         const todayMap = await sequelize.query(`
           SELECT a.id FROM map AS a
           LEFT JOIN user AS b ON a.creatorId = b.id
-          WHERE a.createdAt > UNIX_TIMESTAMP(CAST(SYSDATE()AS DATE)) AND b.token = '${token}'
+          WHERE a.createdAt > UNIX_TIMESTAMP(CAST(SYSDATE()AS DATE)) AND b.token = '${token}' AND a.delFlag = false
         `);
         if (todayMap[0].length > 5) return DTO.error(res)("今日可上传地图已达上限");
         await mapModel.create({
