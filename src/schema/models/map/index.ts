@@ -7,6 +7,10 @@ const map = defineModel("map", {
     allowNull: true,
     type: STRING(32),
   },
+  creatorId: {
+    allowNull: false,
+    type: INTEGER
+  },
   mapName: {
     allowNull: true,
     type: STRING(255),

@@ -8,6 +8,7 @@ import userModel, {getInfoByToken} from "../../../schema/models/user";
 import {Model, Order} from "sequelize/types";
 import {Request} from "express";
 import collectModel from "../../../schema/models/collect";
+import {sequelize} from "../../../schema/db";
 
 const router = useRouter();
 /**
@@ -36,17 +37,34 @@ router.post("/add", async (req, res) => {
   });
   if (valid.f) {
     try {
-      if (valid.resData.creator.length > 32) return DTO.error(res)("作者名称过长");
-      if (valid.resData.mapName.length > 255) return DTO.error(res)("地图名称过长");
-      const amount = await mapModel.count({
-        where: {
-          mapName: valid.resData.mapName,
-          delFlag: false,
-        },
-      });
-      if (amount) return DTO.error(res)("该地图名已存在");
-      await mapModel.create({...valid.resData, time: getNow()});
-      return DTO.data(res)(true);
+      const userInfo = await getInfoByToken(req);
+      if (userInfo) {
+        if (valid.resData.creator.length > 32) return DTO.error(res)("作者名称过长");
+        if (valid.resData.mapName.length > 255) return DTO.error(res)("地图名称过长");
+        const amount = await mapModel.count({
+          where: {
+            mapName: valid.resData.mapName,
+            delFlag: false,
+          },
+        });
+        if (amount) return DTO.error(res)("该地图名已存在");
+        const token = req.headers.authorization.split(" ")[1];
+        // 查询该用户今日上传地图数量
+        const todayMap = await sequelize.query(`
+          SELECT a.id FROM map AS a
+          LEFT JOIN user AS b ON a.creatorId = b.id
+          WHERE a.createdAt > UNIX_TIMESTAMP(CAST(SYSDATE()AS DATE)) AND b.token = '${token}'
+        `);
+        console.log(todayMap);
+        
+        if (todayMap[0].length > 5) return DTO.error(res)("今日可上传地图已达上限");
+        await mapModel.create({
+          ...valid.resData,
+          time: getNow(),
+          creatorId: userInfo.getDataValue("id"),
+        });
+        return DTO.data(res)(true);
+      }
     } catch (error) {
       console.log(error);
       return DTO.sysError(res)(error);
