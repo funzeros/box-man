@@ -11,6 +11,7 @@ router.post("/register", async (req, res) => {
     const valid: any = await validType(req.body, {
       name: String,
       password: String,
+      email: String
     });
     if (valid.f) {
       const [, created] = await user.findOrCreate({
@@ -97,6 +98,13 @@ router.post("/update", async (req, res) => {
   try {
     const data = await getInfoByToken(req);
     if (data) {
+      const amount = await user.count({
+        where: {
+          nickname: req.body.nickname,
+          delFlag: false,
+        },
+      });
+      if (amount) return DTO.error(res)("该昵称已被使用");
       await user.update(req.body, {
         where: {
           id: data.getDataValue("id"),

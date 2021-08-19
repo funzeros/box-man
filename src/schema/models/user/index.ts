@@ -10,6 +10,7 @@ const user = defineModel("user", {
     allowNull: true,
     type: STRING(36),
   },
+  email: STRING(32),
   coin: {
     type: INTEGER,
     defaultValue: 0,
@@ -18,6 +19,10 @@ const user = defineModel("user", {
     type: TINYINT,
     defaultValue: 0,
   },
+  nickname: {
+    allowNull: true,
+    type: STRING(10)
+  }
 });
 
 /**
@@ -27,7 +32,7 @@ const user = defineModel("user", {
  */
 export const getUserInfo = async (where: any) => {
   const data = await user.findOne({
-    attributes: ["id", "name", "token", "auth", "coin"],
+    attributes: ["id", "name", "nickname", "token", "email", "auth", "coin"],
     where: {...where, delFlag: false},
   });
   return data;
@@ -43,7 +48,7 @@ export const getUserInfo = async (where: any) => {
   if (authorization) {
     const token = authorization.split(" ")[1];
     const data = await user.findOne({
-      attributes: ["id", "name", "token", "auth", "coin", "password"],
+      attributes: ["id", "name", "nickname", "token", "email", "auth", "coin", "password"],
       where: {token, delFlag: false},
     });
     return data

@@ -55,8 +55,6 @@ router.post("/add", async (req, res) => {
           LEFT JOIN user AS b ON a.creatorId = b.id
           WHERE a.createdAt > UNIX_TIMESTAMP(CAST(SYSDATE()AS DATE)) AND b.token = '${token}'
         `);
-        console.log(todayMap);
-        
         if (todayMap[0].length > 5) return DTO.error(res)("今日可上传地图已达上限");
         await mapModel.create({
           ...valid.resData,
