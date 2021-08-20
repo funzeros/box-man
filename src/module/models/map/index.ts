@@ -5,7 +5,7 @@ import mapModel from "../../../schema/models/map";
 import {v4} from "uuid";
 import {GObj} from "../../../types/common";
 import userModel, {getInfoByToken} from "../../../schema/models/user";
-import {Model, Order} from "sequelize/types";
+import {Model, Order, QueryTypes} from "sequelize";
 import {Request} from "express";
 import collectModel from "../../../schema/models/collect";
 import {sequelize} from "../../../schema/db";
@@ -48,14 +48,14 @@ router.post("/add", async (req, res) => {
           },
         });
         if (amount) return DTO.error(res)("该地图名已存在");
-        const token = req.headers.authorization.split(" ")[1];
+        const token = userInfo.getDataValue("token");
         // 查询该用户今日上传地图数量
         const todayMap = await sequelize.query(`
           SELECT a.id FROM map AS a
           LEFT JOIN user AS b ON a.creatorId = b.id
           WHERE a.createdAt > UNIX_TIMESTAMP(CAST(SYSDATE()AS DATE)) AND b.token = '${token}' AND a.delFlag = false
-        `);
-        if (todayMap[0].length > 5) return DTO.error(res)("今日可上传地图已达上限");
+        `, {type: QueryTypes.SELECT});
+        if (todayMap.length > 5) return DTO.error(res)("今日可上传地图已达上限");
         await mapModel.create({
           ...valid.resData,
           time: getNow(),
