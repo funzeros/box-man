@@ -34,6 +34,7 @@ router.post("/add", async (req, res) => {
     },
     stepsPas: Number,
     processData: Array,
+    regretDisabled: Number
   });
   if (valid.f) {
     try {
@@ -119,6 +120,7 @@ const mapAttrs = [
   "playerHP",
   "praiseNumber",
   "stepsPas",
+  "regretDisabled"
 ];
 /**
  * map查询和排序条件

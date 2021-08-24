@@ -1,4 +1,4 @@
-import {INTEGER, JSON, STRING} from "sequelize";
+import {INTEGER, JSON, STRING, TINYINT} from "sequelize";
 
 import {defineModel} from "../../db";
 
@@ -44,6 +44,11 @@ const map = defineModel("map", {
   },
   mapKingId: {
     type: INTEGER,
+    allowNull: true,
+  },
+  regretDisabled: {
+    type: TINYINT,
+    defaultValue: 0,
     allowNull: true,
   },
 });
