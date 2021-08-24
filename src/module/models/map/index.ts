@@ -49,12 +49,13 @@ router.post("/add", async (req, res) => {
           },
         });
         if (amount) return DTO.error(res)("该地图名已存在");
+        const todayTime = new Date(new Date().toLocaleDateString()).getTime()
         const token = userInfo.getDataValue("token");
         // 查询该用户今日上传地图数量
         const todayMap = await sequelize.query(`
           SELECT a.id FROM map AS a
           LEFT JOIN user AS b ON a.creatorId = b.id
-          WHERE a.createdAt / 1000 > UNIX_TIMESTAMP(CAST(SYSDATE()AS DATE)) AND b.token = '${token}' AND a.delFlag = false
+          WHERE a.createdAt > ${todayTime} AND b.token = '${token}' AND a.delFlag = false
         `, {type: QueryTypes.SELECT});
         if (todayMap.length > 5) return DTO.error(res)("今日可上传地图已达上限");
         await mapModel.create({
