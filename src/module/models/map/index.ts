@@ -142,6 +142,7 @@ const getSearchParams = (req: Request, userId: number) => {
   }
   if (type) {
     if (type === "collect") mapInclude[1].where = {userId};
+    if (type === "personal") where.creatorId = userId;
   }
   return {
     where,
