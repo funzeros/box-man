@@ -58,10 +58,12 @@ router.post("/add", async (req, res) => {
           WHERE a.createdAt > ${todayTime} AND b.token = '${token}' AND a.delFlag = false
         `, {type: QueryTypes.SELECT});
         if (todayMap.length > 5) return DTO.error(res)("今日可上传地图已达上限");
+        const userId = userInfo.getDataValue("id")
         await mapModel.create({
           ...valid.resData,
           time: getNow(),
-          creatorId: userInfo.getDataValue("id"),
+          creatorId: userId,
+          mapKingId: userId,
         });
         return DTO.data(res)(true);
       }
